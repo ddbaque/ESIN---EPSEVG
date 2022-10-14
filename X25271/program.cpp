@@ -13,9 +13,9 @@ int suma_fills(const arbreBin<T> &bt, bool &t){
     if(suma_fills(bt.fd(), t) + suma_fills(bt.fe(), t) != bt.arrel()) t = false;
 } */
 
-bool suma(const arbreBin<int> &bt){
+bool suma(const arbreBin<int> &bt, bool t){
     if(bt.es_buit()) return true;
-    else 
+    return false;
 }
 
 int main(){
