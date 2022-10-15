@@ -132,8 +132,6 @@ int main() {
       dq.eject();
 
     } else if (comanda == "mostra") {
-      if(not dq.empty()) cout << "vacia" << endl;
-
       mostra(dq);
 
     } else if (comanda == "mostra_invertida") {
