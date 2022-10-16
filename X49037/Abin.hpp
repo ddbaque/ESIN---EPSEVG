@@ -33,15 +33,7 @@ private:
     node *_arrel;
     static node *copia_nodes(node *m);
     static void esborra_nodes(node *m);
-    void re_nivell(node *n, nat i) const{
-        if(i == 0 or n == nullptr){
-            if(n != nullptr) cout << n->info << " ";
-            return;
-        }
-        --i;
-        re_nivell(n->f_esq, i);
-        re_nivell(n->f_dret, i);
-    }
+    static void re_nivell(node *n, nat i);
 
     // Aquí va l’especificació dels mètodes privats addicionals
 };
@@ -52,4 +44,15 @@ template <typename T>
 void Abin<T>::nivell(nat i) const{
     nat j = i;
     re_nivell(_arrel, j);
+}
+
+template <typename T>
+void Abin<T>::re_nivell(node *n, nat i){
+    if(i == 0 or n == nullptr){
+            if(n != nullptr) cout << " " << n->info;
+            return;
+        }
+        --i;
+        re_nivell(n->f_esq, i);
+        re_nivell(n->f_dret, i);
 }
