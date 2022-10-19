@@ -92,6 +92,7 @@ Arbre<int> arbre() {
 
 int main() {
   Arbre<int> a(arbre());
+  a.preordre();
   if (a.es_arbre_suma())
     cout << "SI és arbre suma\n";
   else

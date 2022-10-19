@@ -41,7 +41,7 @@ private:
     static node *copia_arbre(node *p);
     static void destrueix_arbre(node *p) throw();
     static void preordre(node *p, string pre);
-    static void arbre_suma_fills(node *n, int &sum);
+    static void arbre_suma_fills(node *n);
 
     // Aquí va l’especificació dels mètodes privats addicionals
 };
@@ -49,15 +49,54 @@ private:
 // Aquí va la implementació del mètode arbre_suma_fills i privats addicionals
 
 template <typename T>
-void Arbre<T>::arbre_suma_fills(){
-    int sum = 0;
-    arbre_suma_fills(_arrel, sum);
+void Arbre<T>::arbre_suma_fills()
+{
+    arbre_suma_fills(_arrel);
 }
 
 template <typename T>
+void Arbre<T>::arbre_suma_fills(node *p){
+    if(p->primf == nullptr) return;
+
+    int sum = 0;
+    bool tr = false;
+
+    arbre_suma_fills(p->primf);
+    
+    node *paux = p->primf;
+
+    while (paux != nullptr)
+    {
+        sum += paux->info;
+       
+        paux = paux->seggerm;
+
+        if(paux != nullptr){
+            if(paux->primf != nullptr){
+                arbre_suma_fills(paux);
+            }
+        }
+    }
+    p->info = sum;
+    /* if(tr){
+        p->info = sum;
+    } */
+}
+
+/* template <typename T>
 void Arbre<T>::arbre_suma_fills(node *p, int &sum){
-    cout << "entro" << endl;
-    if(p == nullptr) return; 
+
+    if(p == nullptr) return
+
+    arbre_suma_fills(p->primf);
+    while (p->seggerm != nullptr)
+    {
+
+    }
+
+
+    /* cout << "entro" << endl;
+    if(p == nullptr) return;
     arbre_suma_fills(p->primf, sum);
     arbre_suma_fills(p->seggerm, sum);
     if(p->primf == nullptr){
@@ -66,5 +105,5 @@ void Arbre<T>::arbre_suma_fills(node *p, int &sum){
         if(p->seggerm != nullptr) sum -= p->seggerm->info;
         p->info = sum;
         if(p->seggerm != nullptr) sum += p->seggerm->info;
-    }
-}
+    } */
+

@@ -11,6 +11,9 @@ public:
     // Construeix un Arbre format per un únic node que conté a x.
     Arbre(const T &x);
 
+/*     void preordre() const;
+ */
+
     // Tres grans.
     Arbre(const Arbre<T> &a);
     Arbre &operator=(const Arbre<T> &a);
@@ -36,7 +39,9 @@ private:
     node *_arrel;
     static node *copia_arbre(node *p);
     static void destrueix_arbre(node *p) throw();
-    static void es_arbre_suma(node *p);
+    static void es_arbre_suma(node *p, bool &t);
+/*     static void preordre(node *p, string pre);
+ */
 
     // Aquí va l’especificació dels mètodes privats addicionals
 };
@@ -46,12 +51,54 @@ private:
 template <typename T> 
 bool Arbre<T>::es_arbre_suma(){
     bool t = true;
-    es_arbre_suma(_arrel);
+    es_arbre_suma(_arrel, t);
     return t;
 }
 
 template <typename T>
-void Arbre<T>::es_arbre_suma(node *p){
-    cout << "prim-> " << p->primf->info << endl;
-    if(p->seggerm == nullptr) cout << "no hay " << endl;
+void Arbre<T>::es_arbre_suma(node *p, bool &t){
+    
+    if(p->primf == nullptr) return;
+
+    int sum = 0;
+    bool tr = false;
+
+    es_arbre_suma(p->primf, t);
+    
+    node *paux = p->primf;
+
+    while (paux != nullptr)
+    {
+        sum += paux->info;
+        tr = true;
+        paux = paux->seggerm;
+
+        if(paux != nullptr){
+            if(paux->primf != nullptr){
+                es_arbre_suma(paux->primf, t);
+            }
+        }
+    }
+    
+    if(sum != p->info and tr){
+        t = false;
+    }
+    
 }
+
+/* template <typename T>
+void Arbre<T>::preordre(node *p, string pre)
+{
+  if (p != NULL)
+  {
+    cout << pre << p->info << endl;
+    preordre(p->primf, pre + "  ");
+    preordre(p->seggerm, pre);
+  }
+}
+
+template <typename T>
+void Arbre<T>::preordre() const
+{
+  preordre(_arrel, "");
+} */

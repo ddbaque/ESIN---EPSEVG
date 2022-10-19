@@ -2,7 +2,6 @@
 #include <cstddef>
 using namespace std;
 typedef unsigned int nat;
-
 class Llista {
   // Llista doblement encadenada, circular i amb fantasma.
   private:
