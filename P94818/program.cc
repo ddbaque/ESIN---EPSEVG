@@ -31,7 +31,7 @@ public:
   void insereix_bst(const T &k);
   bool consulta_bst(const T &k);
   void mostrar_bst();
-  void print() const;
+  void print(int i) const;
 
 private:
   struct node
@@ -48,28 +48,28 @@ private:
   static void consulta_bst(node *n, const T &k, bool &t);
   static void mostrar_bst(node *n, int niv);
   static node *insereix_bst(node *n, const T &k);
-  static void print(node *n, bool &t);
+  static void print(node *n, int &t, const int i);
 };
 
 template <typename T>
-void Abin<T>::print(node *n, bool &t)
+void Abin<T>::print(node *n, int &t, const int i)
 {
     if(n != nullptr)
     {
-        if(n->f_esq != nullptr) print(n->f_esq, t);
-        if(!t) cout << " ";
-        t = false;
-        cout << n->info;
-        if(n->f_dret != nullptr) print(n->f_dret, t);
+        if(n->f_esq != nullptr) print(n->f_esq, t, i);
+        t++;
+        if(t == i)
+          cout << n->info;
+        if(n->f_dret != nullptr) print(n->f_dret, t, i);
     }
 }
 
 
 template <typename T>
-void Abin<T>::print() const{
-    bool t = true;
+void Abin<T>::print(int i) const{
+    int t = 0;
     cout << "[";
-    print(_arrel, t);
+    print(_arrel, t, i);
     cout << "]" << endl;
 }
 
@@ -231,7 +231,8 @@ int main(void)
   }
   /*   cout << "salgo" << endl;
     cout << bst << endl; */
+  cout << bst << endl;
   bst.mostrar_bst();
   cout << endl;
-  bst.print();
+  bst.print(7);
 }

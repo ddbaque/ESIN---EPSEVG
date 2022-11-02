@@ -58,6 +58,11 @@ private:
     static node *insereix(node *n, const Clau &k);
     static void consulta_clau(node *n, const Clau &k, bool &t);
     static void print(node *n, bool &t);
+    static void print_interval(node *n, const Clau &k1, const Clau &k2, bool &t);
+    static void iessim(node *n, int &cnt, const nat i, Clau &k);
+    node *elimina_bst(node *n, const Clau &k);
+    static node *ajunta(node *t1, node *t2) throw();
+    static node *elimina_maxim(node *p) throw();
 };
 
 // Aquí va la implementació dels mètodes públics i privats
@@ -92,8 +97,8 @@ void dicc<Clau>::esborra_nodes(node *n)
        espai dels nodes de l'arbre binari apuntat per n */
     if (n != NULL)
     {
-        esborra_nodes(n->f_esq);
-        esborra_nodes(n->f_dret);
+        esborra_nodes(n->_esq);
+        esborra_nodes(n->_dret);
         delete n;
     }
 };
@@ -188,7 +193,7 @@ void dicc<Clau>::consulta_clau(node *n, const Clau &k, bool &t)
     {
         if (n->_k == k)
         {
-            t = false;
+            t = true;
             return;
         }
         else
@@ -210,21 +215,162 @@ nat dicc<Clau>::quants() const
 template <typename Clau>
 void dicc<Clau>::print(node *n, bool &t)
 {
-    if(n != nullptr)
+    if (n != nullptr)
     {
-        if(n->_esq != nullptr) print(n->esq, t);
-        if(!t) cout << " ";
+        if (n->_esq != nullptr)
+            print(n->_esq, t);
+        if (!t)
+            cout << " ";
         t = false;
         cout << n->_k;
-        if(n->dret != nullptr) print(n->dret, t);
+        if (n->_dret != nullptr)
+            print(n->_dret, t);
     }
 }
 
 template <typename Clau>
-void dicc<Clau>::print() const{
+void dicc<Clau>::print() const
+{
     bool t = true;
     cout << "[";
     print(_arrel, t);
-    cout << "]" << endl;
+    cout << "]";
 }
 
+template <typename Clau>
+void dicc<Clau>::print_interval(const Clau &k1, const Clau &k2) const
+{
+    bool t = true;
+    cout << "[";
+    print_interval(_arrel, k1, k2, t);
+    cout << "]";
+}
+
+template <typename Clau>
+void dicc<Clau>::print_interval(node *n, const Clau &k1, const Clau &k2, bool &t)
+{
+    if (n != nullptr)
+    {
+        if (n->_esq != nullptr)
+            print_interval(n->_esq, k1, k2, t);
+        if (n->_k >= k1 && n->_k <= k2)
+        {
+            if (!t)
+                cout << " ";
+            t = false;
+            cout << n->_k;
+        }
+        if (n->_dret != nullptr)
+            print_interval(n->_dret, k1, k2, t);
+    }
+}
+
+template <typename Clau>
+Clau dicc<Clau>::min() const
+{
+    node *it = _arrel;
+    while (it->_esq != nullptr)
+    {
+        it = it->_esq;
+    }
+    return it->_k;
+}
+
+template <typename Clau>
+Clau dicc<Clau>::max() const
+{
+    node *it = _arrel;
+    while (it->_dret != nullptr)
+    {
+        it = it->_dret;
+    }
+    return it->_k;
+}
+
+template <typename Clau>
+Clau dicc<Clau>::iessim(nat i) const
+{
+    int cnt = 0;
+    Clau k;
+    iessim(_arrel, cnt, i, k);
+    return k;
+}
+
+template <typename Clau>
+void dicc<Clau>::iessim(node *n, int &cnt, const nat i, Clau &k)
+{
+
+    if (n != nullptr)
+    {
+        if (n->_esq != nullptr)
+            iessim(n->_esq, cnt, i, k);
+        cnt++;
+        if (cnt == i)
+            k = n->_k;
+        if (n->_dret != nullptr)
+            iessim(n->_dret, cnt, i, k);
+    }
+}
+
+template <typename Clau>
+void dicc<Clau>::elimina(const Clau &k)
+{
+    _arrel = elimina_bst(_arrel, k);
+}
+
+template <typename Clau>
+typename dicc<Clau>::node *dicc<Clau>::elimina_bst(node *n, const Clau &k)
+{
+    node *p = n;
+    if (n != nullptr)
+    {
+        if (k < n->_k)
+        {
+            n->_esq = elimina_bst(n->_esq, k);
+        }
+        else if (k > n->_k)
+        {
+            n->_dret = elimina_bst(n->_dret, k);
+        }
+        else
+        {
+            n = ajunta(n->_esq, n->_dret);
+            delete (p);
+            _mida--;
+        }
+    }
+    return n;
+}
+
+template <typename Clau>
+typename dicc<Clau>::node *dicc<Clau>::ajunta(node *t1, node *t2) throw()
+{
+    if (t1 == NULL)
+    {
+        return t2;
+    }
+    if (t2 == NULL)
+    {
+        return t1;
+    }
+    node *p = elimina_maxim(t1);
+    p->_dret = t2;
+    return p;
+}
+
+template <typename Clau>
+typename dicc<Clau>::node *dicc<Clau>::elimina_maxim(node *p) throw()
+{
+    node *p_orig = p, *pare = NULL;
+    while (p->_dret != NULL)
+    {
+        pare = p;
+        p = p->_dret;
+    }
+    if (pare != NULL)
+    {
+        pare->_dret = p->_esq; // p és fill dret de pare
+        p->_esq = p_orig;
+    }
+    return p;
+}
