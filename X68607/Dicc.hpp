@@ -44,22 +44,25 @@ public:
     // Pre: El diccionari no està buit. 1 <= i <= quants()
     Clau iessim(nat i) const;
 
+
 private:
     struct node
     {
         Clau _k;
         node *_esq;
         node *_dret;
+        nat _n_subs;
     };
     nat _mida;
     node *_arrel;
+    static void print_nodes(node *m, string d1);
     static node *copia_nodes(node *m);
     static void esborra_nodes(node *n);
     static node *insereix(node *n, const Clau &k);
     static void consulta_clau(node *n, const Clau &k, bool &t);
     static void print(node *n, bool &t);
     static void print_interval(node *n, const Clau &k1, const Clau &k2, bool &t);
-    static void iessim(node *n, int &cnt, const nat i, Clau &k);
+    static void iessim(node *n, const nat i, Clau &k);
     node *elimina_bst(node *n, const Clau &k);
     static node *ajunta(node *t1, node *t2) throw();
     static node *elimina_maxim(node *p) throw();
@@ -119,6 +122,7 @@ typename dicc<Clau>::node *dicc<Clau>::copia_nodes(node *m)
         try
         {
             n->info = m->info;
+            n->_n_subs = m->_n_subs;
             n->f_esq = copia_nodes(m->f_esq);
             n->f_dret = copia_nodes(m->f_dret);
         }
@@ -166,14 +170,21 @@ typename dicc<Clau>::node *dicc<Clau>::insereix(node *n, const Clau &k)
         n->_k = k;
         n->_dret = nullptr;
         n->_esq = nullptr;
+        n->_n_subs = 1;
         return n;
     }
     else
     {
         if (n->_k > k)
+        {
+            n->_n_subs++;
             n->_esq = insereix(n->_esq, k);
+        }
         else
+        {
+            n->_n_subs++;
             n->_dret = insereix(n->_dret, k);
+        }
         return n;
     }
 }
@@ -251,7 +262,7 @@ void dicc<Clau>::print_interval(node *n, const Clau &k1, const Clau &k2, bool &t
 {
     if (n != nullptr)
     {
-        if (n->_esq != nullptr)
+        if (k1 <= n->_k)
             print_interval(n->_esq, k1, k2, t);
         if (n->_k >= k1 && n->_k <= k2)
         {
@@ -260,7 +271,7 @@ void dicc<Clau>::print_interval(node *n, const Clau &k1, const Clau &k2, bool &t
             t = false;
             cout << n->_k;
         }
-        if (n->_dret != nullptr)
+        if (k2 >= n->_k)
             print_interval(n->_dret, k1, k2, t);
     }
 }
@@ -292,15 +303,69 @@ Clau dicc<Clau>::iessim(nat i) const
 {
     int cnt = 0;
     Clau k;
-    iessim(_arrel, cnt, i, k);
+    cout << endl;
+    print_nodes(_arrel, "");
+    if (i <= _mida && i >= 1)
+    {
+        iessim(_arrel, i, k);
+        cout << "flag 1" << endl;
+    }
     return k;
 }
 
-template <typename Clau>
-void dicc<Clau>::iessim(node *n, int &cnt, const nat i, Clau &k)
+template <typename T>
+void dicc<T>::print_nodes(node *p, string prefix)
 {
+    if (p == NULL)
+        cout << ".";
+    else
+    {
+        string prefix2;
+        cout << "[" << p->_k << ", " << p->_n_subs << "]\n"
+           << prefix << " \\__";
+        prefix2 = prefix + " |  ";
+        print_nodes(p->_dret, prefix2);
+        cout << "\n"
+           << prefix << " \\__";
+        prefix2 = prefix + "    ";
+        print_nodes(p->_esq, prefix2);
+    }
+}
 
-    if (n != nullptr)
+template <typename Clau>
+void dicc<Clau>::iessim(node *n, const nat i, Clau &k)
+{
+    node *n_esq = n->_esq;
+    if (n_esq == nullptr)
+    {
+        if (i == n->_n_subs)
+        {
+            cout << "flag 3" << endl;
+            k = n->_k;
+            return;
+        }
+    }
+    else
+    {
+        if (i == n_esq->_n_subs + 1)
+        {
+            cout << "entro" << endl;
+            k = n_esq->_k;
+            return;
+        }
+        else if (i < n_esq->_n_subs + 1)
+        {
+            cout << "flag 2" << endl;
+            iessim(n->_esq, i, k);
+        }
+        else
+        {
+            const int pos = i - n_esq->_n_subs - 1;
+            iessim(n, pos, k);
+        }
+    }
+
+    /* if (n != nullptr)
     {
         if (n->_esq != nullptr)
             iessim(n->_esq, cnt, i, k);
@@ -309,13 +374,14 @@ void dicc<Clau>::iessim(node *n, int &cnt, const nat i, Clau &k)
             k = n->_k;
         if (n->_dret != nullptr)
             iessim(n->_dret, cnt, i, k);
-    }
+    } */
 }
 
 template <typename Clau>
 void dicc<Clau>::elimina(const Clau &k)
 {
-    _arrel = elimina_bst(_arrel, k);
+    if (consulta(k))
+        _arrel = elimina_bst(_arrel, k);
 }
 
 template <typename Clau>
@@ -326,16 +392,21 @@ typename dicc<Clau>::node *dicc<Clau>::elimina_bst(node *n, const Clau &k)
     {
         if (k < n->_k)
         {
+            n->_n_subs--;
             n->_esq = elimina_bst(n->_esq, k);
         }
         else if (k > n->_k)
         {
+            n->_n_subs--;
             n->_dret = elimina_bst(n->_dret, k);
         }
         else
         {
+            int aux = n->_n_subs;
             n = ajunta(n->_esq, n->_dret);
             delete (p);
+            if (n != nullptr)
+                n->_n_subs = aux - 1;
             _mida--;
         }
     }
@@ -364,6 +435,7 @@ typename dicc<Clau>::node *dicc<Clau>::elimina_maxim(node *p) throw()
     node *p_orig = p, *pare = NULL;
     while (p->_dret != NULL)
     {
+        p->_n_subs--;
         pare = p;
         p = p->_dret;
     }
