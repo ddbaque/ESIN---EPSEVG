@@ -56,11 +56,10 @@ int main() {
     d.insereix(input);
   }
 
-  d.claus();
 
-  /* vector<nat> freq = d.freq_longituds();
+  vector<nat> freq = d.freq_longituds();
   for (nat i = 0; i < freq.size(); i++) {
     cout << freq[i] << " ";
-  } */
+  }
   return 0;
 }

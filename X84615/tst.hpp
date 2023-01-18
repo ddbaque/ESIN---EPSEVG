@@ -20,8 +20,8 @@ public:
     void claus();
     list<string> llista_ordenada_dec() const;
 
-    /*     vector<nat> freq_longituds() const;
-     */
+    vector<nat> freq_longituds() const;
+
     // Pre: True
     // Post: Retorna un vector amb les freqüències de les longituds de les claus.
     // La mida del vector és igual a la longitud de la clau més llarga més un.
@@ -40,9 +40,37 @@ private:
     static void esborra_nodes(node *t);
     static node *insereix(node *t, nat i, const string &k);
     static void print(node *n, string s, list<string> &vs);
+    static void dfs_count(vector<nat> &freqs, node *t, int longitud);
+    static void dfs_longituds(int &max_longitud, node* t, int longitud);
 
     // Aquí va l’especificació dels mètodes privats addicionals
 };
+
+void dicc::dfs_longituds(int &max_l, node *t, int l){
+    if(t == nullptr) return;
+    if(t->_c == '#') max_l = max(max_l, l);
+    if(t->_esq != nullptr) dfs_longituds(max_l, t->_esq, l);
+    dfs_longituds(max_l, t->_cen, l + 1);
+    dfs_longituds(max_l, t->_dre, l);
+}
+
+void dicc::dfs_count(vector<nat> &freqs, node *t, int longitud){
+    if(t == nullptr) return;
+    if(t->_c == '#') ++freqs[longitud];
+    if(t->_esq != nullptr) dfs_count(freqs, t->_esq, longitud);
+    dfs_count(freqs, t->_cen, longitud+1);
+    dfs_count(freqs, t->_dre, longitud);
+}
+
+vector<nat> dicc::freq_longituds() const
+{
+    int max_l = 0;
+    dfs_longituds(max_l, _arrel, 0);
+    if(max_l == 0) return vector<nat>();
+    vector<nat> freq(max_l + 1, 0);
+    dfs_count(freq, _arrel, 0);
+    return freq;
+}
 
 void dicc::claus()
 {
@@ -69,7 +97,8 @@ void dicc::print(node *n, string s, list<string> &vs)
     }
 }
 
-list<string> dicc::llista_ordenada_dec() const {
+list<string> dicc::llista_ordenada_dec() const
+{
     list<string> s;
     print(_arrel, "", s);
     return s;

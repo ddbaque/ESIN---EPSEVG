@@ -62,13 +62,30 @@ private:
     static void consulta_clau(node *n, const Clau &k, bool &t);
     static void print(node *n, bool &t);
     static void print_interval(node *n, const Clau &k1, const Clau &k2, bool &t);
-    static void iessim(node *n, const nat i, Clau &k);
     node *elimina_bst(node *n, const Clau &k);
     static node *ajunta(node *t1, node *t2) throw();
     static node *elimina_maxim(node *p) throw();
+    node *element_per_posicio(node *n, nat pos) const;
 };
 
 // Aquí va la implementació dels mètodes públics i privats
+
+template <typename Clau>
+typename dicc<Clau>::node* dicc<Clau>::element_per_posicio(node* n, nat pos) const {
+    if (n == NULL) {
+        return n;
+    }
+    nat grandaria_esq = n->_esq != NULL ? n->_esq->_n_subs: 0;
+    if (pos == grandaria_esq + 1) {
+        return n;
+    }
+    else if (pos <= grandaria_esq) {
+        return element_per_posicio(n->_esq, pos);
+    }
+    else {
+        return element_per_posicio(n->_dret, pos - grandaria_esq - 1);
+    }
+}
 
 template <typename Clau>
 // Constructora per defecte. Crea un diccionari buit.
@@ -301,16 +318,8 @@ Clau dicc<Clau>::max() const
 template <typename Clau>
 Clau dicc<Clau>::iessim(nat i) const
 {
-    int cnt = 0;
-    Clau k;
-    cout << endl;
-    print_nodes(_arrel, "");
-    if (i <= _mida && i >= 1)
-    {
-        iessim(_arrel, i, k);
-        cout << "flag 1" << endl;
-    }
-    return k;
+    node *n = element_per_posicio(_arrel, i);
+    return n->_k;
 }
 
 template <typename T>
@@ -330,51 +339,6 @@ void dicc<T>::print_nodes(node *p, string prefix)
         prefix2 = prefix + "    ";
         print_nodes(p->_esq, prefix2);
     }
-}
-
-template <typename Clau>
-void dicc<Clau>::iessim(node *n, const nat i, Clau &k)
-{
-    node *n_esq = n->_esq;
-    if (n_esq == nullptr)
-    {
-        if (i == n->_n_subs)
-        {
-            cout << "flag 3" << endl;
-            k = n->_k;
-            return;
-        }
-    }
-    else
-    {
-        if (i == n_esq->_n_subs + 1)
-        {
-            cout << "entro" << endl;
-            k = n_esq->_k;
-            return;
-        }
-        else if (i < n_esq->_n_subs + 1)
-        {
-            cout << "flag 2" << endl;
-            iessim(n->_esq, i, k);
-        }
-        else
-        {
-            const int pos = i - n_esq->_n_subs - 1;
-            iessim(n, pos, k);
-        }
-    }
-
-    /* if (n != nullptr)
-    {
-        if (n->_esq != nullptr)
-            iessim(n->_esq, cnt, i, k);
-        cnt++;
-        if (cnt == i)
-            k = n->_k;
-        if (n->_dret != nullptr)
-            iessim(n->_dret, cnt, i, k);
-    } */
 }
 
 template <typename Clau>
