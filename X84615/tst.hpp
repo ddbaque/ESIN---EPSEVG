@@ -43,7 +43,6 @@ private:
     static void dfs_count(vector<nat> &freqs, node *t, int longitud);
     static void dfs_longituds(int &max_longitud, node* t, int longitud);
 
-    // Aquí va l’especificació dels mètodes privats addicionals
 };
 
 void dicc::dfs_longituds(int &max_l, node *t, int l){
@@ -72,11 +71,6 @@ vector<nat> dicc::freq_longituds() const
     return freq;
 }
 
-void dicc::claus()
-{
-    list<string> s;
-    print(_arrel, "", s);
-}
 
 void dicc::print(node *n, string s, list<string> &vs)
 {
